@@ -7,13 +7,13 @@ exports.register = async (req, res) => {
     const {name, email, password} = req.body;
     const emailRegex = /@gmail.com|@yahoo.com|@hotmail.com|@live.com$/;
 
-    if(!emailRegex.test(email)) throw "Email wish your domain is not suported";
-    if(password.length < 6) throw "Password mast be longer then 6";
+    if(!emailRegex.test(email)) throw new Error( "Email wish your domain is not supported");
+    if(password.length < 6) throw new Error("Password mast be longer then 6");
 
     const userExist = await User.findOne({
         email,
     })
-    if(userExist) throw "User with same email already exist"
+    if(userExist) throw new Error("User with same email already exist")
 
     const user = new User({
         name,
@@ -35,7 +35,7 @@ exports.login = async (req, res) => {
         password: sha256(password + process.env.SALT)
     })
 
-    if (!user) throw  "Email and password wrong"
+    if (!user) throw  new Error("Email and password wrong")
 
     const token = await jwt.sign({id: user.id}, process.env.SECRET);
     res.json({
