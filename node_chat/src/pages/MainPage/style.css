@@ -7,13 +7,16 @@ html {
   src: url("../../assets/fonts/avenir-roman-opentype_bigfontsite.com.otf") format("opentype");
   }
 
-body {
+body{
+  background-color: #282e36;
+}
+
+ #root{
   display: flex;
   flex-direction: column;
   width: 1440px;
   height: 100vh;
   margin: 0 auto;
-  background-color: #282e36;
   font-family: 'Avenir Roman','Open Sans', sans-serif;
   font-weight: normal;
   letter-spacing: normal;
