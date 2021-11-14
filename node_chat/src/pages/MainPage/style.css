@@ -152,6 +152,7 @@ main {
   padding: 0 16px 0 32px ;
   align-items:center;
   justify-content: space-between;
+  cursor: pointer;
 }
 
 .channels_item_wrapper_active {

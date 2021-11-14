@@ -1,4 +1,5 @@
-import React from 'react'
+import React, {useContext, useEffect, useState} from 'react'
+import { useHistory } from 'react-router-dom';
 import './normalize.css'
 import './style.css'
 import star from '../../assets/IMG/star.svg'
@@ -9,8 +10,26 @@ import girlUser from '../../assets/IMG/girl_user.svg'
 import selectedGirl from '../../assets/IMG/selected_girl.svg'
 import menUser from '../../assets/IMG/men_user.svg'
 import room from '../../assets/IMG/room.jpg'
+import {UserContext} from "../../context/UserContext";
 
 const MainPage = () => {
+    const token = localStorage.getItem("chatToken");
+    const history = useHistory();
+    const userContext = useContext(UserContext);
+
+    const [newMessage, setNewMessage] = useState(null);
+
+    useEffect(() => {
+        if (!token) {
+            history.push('./login')
+        }
+    },[token])
+
+    const handleChange = e => {
+        const { value } = e.target
+        setNewMessage(value);
+    }
+
     return(
         <>
             <header>
@@ -78,15 +97,19 @@ const MainPage = () => {
                             <span>Group channels</span>
                             <button/>
                         </div>
-                        <div className="channels_item_wrapper">
-                            <span>#app-idea</span>
-                        </div>
-                        <div className="channels_item_wrapper">
-                            <span>#general</span>
-                        </div>
-                        <div className="channels_item_wrapper">
-                            <span>#our clients</span>
-                        </div>
+                        {
+                            userContext?.listOfChatroom?.map((chatroom => {
+                                return(
+                                  <div
+                                    key={chatroom._id}
+                                    className={`channels_item_wrapper ${(userContext.currentChatId === chatroom._id)? 'channels_item_wrapper_active' : null  }`}
+                                    onClick={() => userContext.updateCurrentChat(chatroom._id)}
+                                  >
+                                      <span>#{chatroom.name}</span>
+                                  </div>
+                                )
+                            }))
+                        }
                     </div>
                 </div>
                 <div className="chat_list">
@@ -241,69 +264,98 @@ const MainPage = () => {
                 </div>
                 <div className="chat">
                     <div className="message_wrapper">
-                        <div className="message_item">
-                            <div className="text_wrapper">
-                                <div className="user_icon">
-                                    <img alt="user icon" src={menUser}/>
-                                </div>
-                                <span className="text">Maybe you already have additional info?</span>
-                            </div>
-                            <span className="time">14:30 pm</span>
-                        </div>
-                        <div className="message_item">
-                            <div className="text_wrapper">
-                                <div className="user_icon">
-                                    <img alt="user icon" src={menUser}/>
-                                </div>
-                                <span className="text">It is to early to provide some kind of estimation here. We need user stories</span>
-                            </div>
-                            <span className="time">14:20 pm</span>
-                        </div>
-                        <div className="message_item opponent">
-                            <div className="text_wrapper">
-                                <div className="user_icon">
-                                    <img alt="user icon" src={menUser}/>
-                                </div>
-                                <span className="text">We are just writing up the user stories now so will have requirements for you next week</span>
-                            </div>
-                            <span className="time">14:05 pm</span>
-                        </div>
-                        <div className="message_item opponent">
-                            <div className="text_wrapper big_text_wrapper">
-                                <div className="user_icon">
-                                    <img alt="user icon" src={menUser}/>
-                                </div>
-                                <span className="text">Essentially the brief is for you guys to build an iOS and android app.
-                    We will do backend and web app. We have a version one mockup of the UI, please see it attached.
-                    As mentioned before, we would simply hand you all the assets for the UI and you guys
-                    code. If you have any early questions please do send them on to myself.
-                    Ill be in touch in coming days when we have requirements prepared.</span>
-                            </div>
-                            <span className="time">12:00 pm</span>
-                        </div>
-                        <div className="message_item opponent">
-                            <div className="text_wrapper text_wrapper_data">
-                                <div className="user_icon">
-                                    <img alt="user icon" src={menUser}/>
-                                </div>
-                                <div className="content">
-                                    <img alt="image preview" src={room} width="114px" height="84px"/>
-                                        <div className="description">
-                                            <span>Big room.jpg</span>
-                                            <a>Download</a>
+                        {userContext.currentChatId ?
+                          <>
+                              {userContext.messages.map((mes, index) => {
+                                  return (
+                                    <div key={`${index}_mess`} className="message_item">
+                                        <div className="text_wrapper">
+                                            <div className="user_icon">
+                                                <img alt="user icon" src={menUser}/>
+                                            </div>
+                                            <span className="text">{mes.name} : {mes.message}</span>
                                         </div>
-                                        <button/>
+                                        <span className="time">14:30 pm</span>
+                                    </div>
+                                  )
+                              } )}
+                          </>
+                          :
+                            <>
+                                <div className="message_item">
+                                    <div className="text_wrapper">
+                                        <div className="user_icon">
+                                            <img alt="user icon" src={menUser}/>
+                                        </div>
+                                        <span className="text">Maybe you already have additional info?</span>
+                                    </div>
+                                    <span className="time">14:30 pm</span>
                                 </div>
-                            </div>
-                            <span className="time time_wrapper_data">11:22 pm</span>
-                        </div>
+                                <div className="message_item">
+                                    <div className="text_wrapper">
+                                        <div className="user_icon">
+                                            <img alt="user icon" src={menUser}/>
+                                        </div>
+                                        <span className="text">It is to early to provide some kind of estimation here. We need user stories</span>
+                                    </div>
+                                    <span className="time">14:20 pm</span>
+                                </div>
+                                <div className="message_item opponent">
+                                    <div className="text_wrapper">
+                                        <div className="user_icon">
+                                            <img alt="user icon" src={menUser}/>
+                                        </div>
+                                        <span className="text">We are just writing up the user stories now so will have requirements for you next week</span>
+                                    </div>
+                                    <span className="time">14:05 pm</span>
+                                </div>
+                                <div className="message_item opponent">
+                                    <div className="text_wrapper big_text_wrapper">
+                                        <div className="user_icon">
+                                            <img alt="user icon" src={menUser}/>
+                                        </div>
+                                        <span className="text">
+                                            Essentially the brief is for you guys to build an iOS and android app.
+                                            We will do backend and web app. We have a version one mockup of the UI, please see it attached.
+                                            As mentioned before, we would simply hand you all the assets for the UI and you guys
+                                            code. If you have any early questions please do send them on to myself.
+                                            Ill be in touch in coming days when we have requirements prepared.
+                                        </span>
+                                    </div>
+                                    <span className="time">12:00 pm</span>
+                                </div>
+                                <div className="message_item opponent">
+                                    <div className="text_wrapper text_wrapper_data">
+                                        <div className="user_icon">
+                                            <img alt="user icon" src={menUser}/>
+                                        </div>
+                                        <div className="content">
+                                            <img alt="image preview" src={room} width="114px" height="84px"/>
+                                            <div className="description">
+                                                <span>Big room.jpg</span>
+                                                <a>Download</a>
+                                            </div>
+                                            <button/>
+                                        </div>
+                                    </div>
+                                    <span className="time time_wrapper_data">11:22 pm</span>
+                                </div>
+                            </>
+                        }
+
 
                     </div>
                     <div className="input_wrapper">
                         <input type="file" id="input_file"/>
                         <label htmlFor="input_file"/>
-                        <textarea placeholder="Type your message..."/>
-                        <button>SEND</button>
+                        <textarea
+                          placeholder="Type your message..."
+                          value={newMessage}
+                          onChange={handleChange}
+                        />
+                        <button onClick={() => userContext.sendMessage(newMessage)}>
+                            SEND
+                        </button>
                     </div>
                 </div>
             </main>

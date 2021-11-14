@@ -1,35 +1,31 @@
-import React, {useState} from 'react'
+import React, {useContext, useState} from 'react'
 import loginPageStyle from './login-page.module.scss'
+import {UserContext} from "../../context/UserContext";
 
 
 const Login = () => {
 
-    let [loginData, changeLoginData] = useState({
+    const userContext = useContext(UserContext);
+
+    const [loginData, changeLoginData] = useState({
         email: '',
         password: ''
     })
-    let [signUpData, setSignUpData] = useState({
+    const [signUpData, setSignUpData] = useState({
         email: '',
         password: '',
-        confirmPassword: ''
+        name: ''
     })
 
-    const handleSubmit = async e => {
-        e.preventDefault()
-        const { password, confirmPassword } = signUpData
-
-        if (password !== confirmPassword) {
-            alert('password dont match')
-            return
-        }
-       // asyncCeateAndSetCurrentUser(signUpData)
+    const handleSubmitRegistration = async e => {
+        e.preventDefault();
+        userContext.createAndSetCurrentUser(signUpData);
     }
 
     const handleSubmitLogin = async e => {
-        debugger
         e.preventDefault()
         const { email, password } = loginData
-      //  asyncLoginAndSetCurrentUser(email, password)
+        userContext.loginAndSetCurrentUser(email, password)
         changeLoginData({ email: '', password: '' })
     }
 
@@ -72,7 +68,7 @@ const Login = () => {
                     Log In
                 </button>
             </form>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmitRegistration}>
                 <h2>Or</h2>
                 <span> Create new account with email and password </span>
                 <input
@@ -92,11 +88,11 @@ const Login = () => {
                     required
                 />
                 <input
-                    type='password'
-                    name='confirmPassword'
+                    type='text'
+                    name='name'
                     value={signUpData.confirmPassword}
                     onChange={handleChange}
-                    placeholder='Confirm Password'
+                    placeholder='User Name'
                     required
                 />
                 <button
