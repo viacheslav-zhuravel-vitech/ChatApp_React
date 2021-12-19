@@ -11,6 +11,7 @@ const UserProvider = ({children}) => {
   const [currentChatId, setCurrentChatId] = useState(null);
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [allUsers, setAllUser] = useState([]);
 
   const setupSocket = () => {
     if (user?.token && !socket) {
@@ -44,6 +45,7 @@ const UserProvider = ({children}) => {
   useEffect(()=> {
     if(user?.token) {
       getAllChatRoom();
+      getAllUsers();
     }
   },[user?.token])
 
@@ -78,20 +80,35 @@ const UserProvider = ({children}) => {
       .then( ({data}) => {
         setUser(data);
         localStorage.setItem("chatToken", data.token)
-        alert(data.message);
+        console.log(data.message);
       })
       .catch (err => {
         console.log(err.response.data.message);
       })
   }
 
-  const createNewChatRoom = (name) => {
-    axios.post("http://localhost:8000/chatroom", name)
-      .then( ({data}) => {
+  const getAllUsers = () => {
+    axios.get("http://localhost:8000/user/getAllUsers", {
+      headers: {
+        "Authorization": 'Bearer ' + user.token
+      }
+    })
+      .then(({data}) => {
+        setAllUser(data)
+      })
+  }
 
+  const createNewChatRoom = (name = 'Super Chatroom') => {
+    axios.post("http://localhost:8000/chatroom", {name}, {
+      headers: {
+        "Authorization": 'Bearer ' + user.token
+      }
+    } )
+      .then( ({data}) => {
+        setListOfChatroom(data.chatrooms)
       })
       .catch (err => {
-        alert(err.response.data.message);
+        console.log(err);
       })
   }
 
@@ -138,10 +155,12 @@ const UserProvider = ({children}) => {
         currentChatId,
         socket,
         messages,
+        allUsers,
         createAndSetCurrentUser,
         loginAndSetCurrentUser,
         updateCurrentChat,
-        sendMessage
+        sendMessage,
+        createNewChatRoom
       }}
     >
       {children}

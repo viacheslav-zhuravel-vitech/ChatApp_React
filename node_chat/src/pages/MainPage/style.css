@@ -170,6 +170,7 @@ main {
 
 .teams_wrapper .title button {
   background-image: url('../../assets/IMG/add_user.svg');
+  cursor: pointer;
 }
 
 .group_channels_wrapper {
@@ -182,6 +183,7 @@ main {
 
 .group_channels_wrapper .title button {
   background-image: url('../../assets/IMG/plus.svg');
+  cursor: pointer;
 }
 
 .chat_list {
@@ -405,6 +407,8 @@ main {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  max-height: 801px;
+  overflow-y: auto;
 }
 
 .message_item {

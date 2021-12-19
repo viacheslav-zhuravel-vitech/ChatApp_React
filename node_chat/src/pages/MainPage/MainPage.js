@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react'
+import React, {useContext, useEffect, useRef, useState} from 'react'
 import { useHistory } from 'react-router-dom';
 import './normalize.css'
 import './style.css'
@@ -16,8 +16,11 @@ const MainPage = () => {
     const token = localStorage.getItem("chatToken");
     const history = useHistory();
     const userContext = useContext(UserContext);
+    const messagesEndRef = useRef(null);
 
-    const [newMessage, setNewMessage] = useState(null);
+    const [newMessage, setNewMessage] = useState('');
+    const [showNewChatroomInput, setShowNewChatroomInput] = useState(false);
+    const [newChatroomName, setNewChatroomName] = useState('')
 
     useEffect(() => {
         if (!token) {
@@ -25,9 +28,18 @@ const MainPage = () => {
         }
     },[token])
 
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView();
+    },[userContext.messages]);
+
     const handleChange = e => {
         const { value } = e.target
         setNewMessage(value);
+    }
+
+    const handleChangeChatroomName = e => {
+        const { value } = e.target
+        setNewChatroomName(value);
     }
 
     return(
@@ -59,7 +71,7 @@ const MainPage = () => {
                         </div>
                     </div>
                     <div className="user_wrapper">
-                        <span>Rachel Curtis</span>
+                        <span>{userContext?.user?.name}</span>
                         <img alt="logined user picture" className='logined_user' src={girlUser}/>
                     </div>
                 </div>
@@ -95,8 +107,25 @@ const MainPage = () => {
                     <div className="group_channels_wrapper">
                         <div className="title">
                             <span>Group channels</span>
-                            <button/>
+                            <button onClick={() => setShowNewChatroomInput(!showNewChatroomInput)}/>
                         </div>
+                        {
+                            showNewChatroomInput &&
+                            <div className="input_wrapper">
+                                <input type="file" id="input_file"/>
+                                <textarea
+                                  placeholder="Type your new chatroom name"
+                                  value={newChatroomName}
+                                  onChange={handleChangeChatroomName}
+                                />
+                                <button onClick={() => {
+                                    userContext.createNewChatRoom(newChatroomName);
+                                    setShowNewChatroomInput(false);
+                                }}>
+                                    SEND
+                                </button>
+                            </div>
+                        }
                         {
                             userContext?.listOfChatroom?.map((chatroom => {
                                 return(
@@ -221,6 +250,28 @@ const MainPage = () => {
                                 </div>
                             </div>
                         </div>
+                        {
+                            userContext.allUsers.map(user => {
+                                return(
+                                  <div className="chat_item" key={user.id}>
+                                      <div className="user_icon">
+                                          <img alt="user icon" src={menUser}/>
+                                          <div className="status do_not_disturb"/>
+                                      </div>
+                                      <div className="massage_description">
+                                          <div className="message_text">
+                                              <span className="name">{user.name}</span>
+                                              <span className="short_message">{user.email}</span>
+                                          </div>
+                                          <div className="message_settings">
+                                              <button/>
+                                              <span>12:40pm</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                                )
+                            })
+                        }
                     </div>
                     <div className="selected_user_wrapper">
                         <div className="selected_user_avatar_wrapper">
@@ -267,8 +318,9 @@ const MainPage = () => {
                         {userContext.currentChatId ?
                           <>
                               {userContext.messages.map((mes, index) => {
+                                  const messageClassName = userContext.user.name === mes.name ? "message_item" : "message_item opponent"
                                   return (
-                                    <div key={`${index}_mess`} className="message_item">
+                                    <div ref={userContext.messages.length -1 === index ? messagesEndRef : null} key={`${index}_mess`} className={messageClassName}>
                                         <div className="text_wrapper">
                                             <div className="user_icon">
                                                 <img alt="user icon" src={menUser}/>
@@ -353,7 +405,10 @@ const MainPage = () => {
                           value={newMessage}
                           onChange={handleChange}
                         />
-                        <button onClick={() => userContext.sendMessage(newMessage)}>
+                        <button onClick={() => {
+                            userContext.sendMessage(newMessage);
+                            setNewMessage('')
+                        }}>
                             SEND
                         </button>
                     </div>

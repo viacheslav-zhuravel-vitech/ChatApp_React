@@ -44,3 +44,9 @@ exports.login = async (req, res) => {
         name: user.name
     });
 }
+
+exports.getAllRegisteredUser = async  (req, res) => {
+    const allUsers = await User.find({});
+
+    res.json(allUsers.map(user => ({ name: user.name, id: user._id, email: user.email})));
+}

@@ -15,9 +15,11 @@ exports.createChatroom = async (req, res) => {
         name,
     })
     await chatroom.save();
+    const chatrooms = await Chatroom.find({})
 
     res.json({
-        message: "Chatroom created!"
+        message: "Chatroom created!",
+        chatrooms
     })
 
     if(!name) throw new Error()
@@ -27,5 +29,4 @@ exports.getAllChatrooms = async  (req, res) => {
     const chatrooms = await Chatroom.find({});
 
     res.json(chatrooms);
-
 }
