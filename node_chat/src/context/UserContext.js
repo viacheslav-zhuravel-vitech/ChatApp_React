@@ -1,15 +1,15 @@
-import {createContext, useEffect, useState} from "react";
-import axios from "axios";
-import {io} from "socket.io-client";
+import { createContext, useEffect, useState } from 'react';
+import axios from 'axios';
+import { io } from 'socket.io-client';
 
 export const UserContext = createContext(null);
 
-const UserProvider = ({children}) => {
-
-  const token = sessionStorage.getItem("chatToken");
+const UserProvider = ({ children }) => {
+  const token = sessionStorage.getItem('chatToken');
 
   const [user, setUser] = useState(null);
   const [listOfChatroom, setListOfChatroom] = useState([]);
+  const [listOfConversations, setListOfConversations] = useState([]);
   const [currentChatId, setCurrentChatId] = useState(null);
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -17,155 +17,200 @@ const UserProvider = ({children}) => {
 
   const setupSocket = () => {
     if (user?.token && !socket) {
-      const newSocket = io("http://localhost:8000", {
+      const newSocket = io('http://localhost:8000', {
         headers: {
-          "Authorization": 'Bearer ' + user.token
+          Authorization: 'Bearer ' + user.token
         },
-        query : {
+        query: {
           token: user.token
         }
-      })
+      });
 
-      newSocket.on('disconnect', ()=> {
+      newSocket.on('disconnect', () => {
         setSocket(null);
         setTimeout(setSocket, 3000);
-        console.log('Socket disconnected')
-      })
+        console.log('Socket disconnected');
+      });
 
       newSocket.on('connect', () => {
-        console.log('Socket connected')
-      })
+        console.log('Socket connected');
+      });
 
       setSocket(newSocket);
     }
-  }
+  };
 
-  useEffect( () => {
-    if(token && !user) {
-      loginUserByToken(token)
+  useEffect(() => {
+    if (token && !user) {
+      loginUserByToken(token);
     }
-  },[token])
+  }, [token]);
 
-
-  useEffect(()=> {
-    if(user?.token) {
+  useEffect(() => {
+    if (user?.token) {
       setupSocket();
       getAllChatRoom();
       getAllUsers();
+      getActiveConversation();
     }
-  },[user?.token])
+  }, [user?.token]);
 
   useEffect(() => {
-    if(currentChatId) {
+    if (currentChatId) {
       socket.on('newMessage', (message) => {
-        setMessages([...messages, message])
-      })
-      socket.on('oldMessages', ({messages}) => {
-        setMessages([...messages])
-      })
+        setMessages([...messages, message]);
+      });
+      socket.on('oldMessages', ({ messages }) => {
+        setMessages([...messages]);
+      });
     }
-  },[currentChatId, messages])
-
+  }, [currentChatId, messages]);
 
   const createAndSetCurrentUser = (signUpData) => {
-    axios.post("http://localhost:8000/user/register",signUpData)
-      .then( ({data}) => {
+    axios
+      .post('http://localhost:8000/user/register', signUpData)
+      .then(({ data }) => {
         loginAndSetCurrentUser(signUpData.email, signUpData.password);
-
       })
-      .catch (err => {
+      .catch((err) => {
         console.log(err.response.data.message);
-      })
-  }
+      });
+  };
 
   const loginAndSetCurrentUser = (email, password) => {
-    axios.post("http://localhost:8000/user/login",{email, password})
-      .then( ({data}) => {
+    axios
+      .post('http://localhost:8000/user/login', { email, password })
+      .then(({ data }) => {
         setUser(data);
-        sessionStorage.setItem("chatToken", data.token)
+        sessionStorage.setItem('chatToken', data.token);
       })
-      .catch (err => {
-        console.log(err.response.data.message);
-      })
-  }
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
-  const loginUserByToken = token => {
-    axios.post("http://localhost:8000/user/loginByToken",{token})
-      .then(({data}) => {
+  const loginUserByToken = (sawedToken) => {
+    axios
+      .post('http://localhost:8000/user/loginByToken', { token: sawedToken })
+      .then(({ data }) => {
         setUser(data);
-        sessionStorage.setItem("chatToken", data.token)
+        if (token !== data.token) {
+          sessionStorage.setItem('chatToken', data.token);
+        }
       })
-      .catch (err => {
-        console.log(err.response.data.message);
-      })
-  }
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   const getAllUsers = () => {
-    axios.get("http://localhost:8000/user/getAllUsers", {
-      headers: {
-        "Authorization": 'Bearer ' + user.token
-      }
-    })
-      .then(({data}) => {
-        setAllUser(data)
+    axios
+      .get('http://localhost:8000/user/getAllUsers', {
+        headers: {
+          Authorization: 'Bearer ' + user.token
+        }
       })
-  }
+      .then(({ data }) => {
+        setAllUser(data);
+      });
+  };
 
   const createNewChatRoom = (name = 'Super Chatroom') => {
-    axios.post("http://localhost:8000/chatroom", {name}, {
-      headers: {
-        "Authorization": 'Bearer ' + user.token
-      }
-    } )
-      .then( ({data}) => {
-        setListOfChatroom(data.chatrooms)
+    axios
+      .post(
+        'http://localhost:8000/chatroom',
+        { name },
+        {
+          headers: {
+            Authorization: 'Bearer ' + user.token
+          }
+        }
+      )
+      .then(({ data }) => {
+        setListOfChatroom(data.chatrooms);
       })
-      .catch (err => {
+      .catch((err) => {
         console.log(err);
-      })
-  }
+      });
+  };
 
   const getAllChatRoom = () => {
-    axios.get("http://localhost:8000/chatroom", {
-      headers: {
-        "Authorization": 'Bearer ' + user.token
-      }
-    })
-      .then( ({data}) => {
-        setListOfChatroom(data)
+    axios
+      .get('http://localhost:8000/chatroom', {
+        headers: {
+          Authorization: 'Bearer ' + user.token
+        }
       })
-      .catch (err => {
-        alert(err.response.data.message);
+      .then(({ data }) => {
+        setListOfChatroom(data);
       })
-  }
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const createConversation = (currentUserId, opponentUserId) => {
+    axios
+      .post(
+        'http://localhost:8000/conversation/createConversation',
+        { members: [currentUserId, opponentUserId] },
+        {
+          headers: {
+            Authorization: 'Bearer ' + user.token
+          }
+        }
+      )
+      .then(({ data }) => {
+        ///
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const getActiveConversation = () => {
+    axios
+      .get(`http://localhost:8000/conversation/getActiveConversation/${user.id}`, {
+        headers: {
+          Authorization: 'Bearer ' + user.token
+        }
+      })
+      .then(({ data }) => {
+        setListOfConversations(data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   const updateCurrentChat = (id) => {
     if (socket) {
-      socket.emit('leaveRoom',{
+      socket.emit('leaveRoom', {
         currentChatId
-      })
+      });
       setMessages([]);
       setCurrentChatId(id);
       socket.emit('joinRoom', {
         id
-      })
+      });
     }
-  }
+  };
 
   const sendMessage = (message) => {
-    if(socket) {
+    if (socket) {
       socket.emit('chatroomMessage', {
         currentChatId,
         message
-      })
+      });
     }
-  }
+  };
 
-  return(
+  return (
     <UserContext.Provider
       value={{
         user,
         listOfChatroom,
+        listOfConversations,
         currentChatId,
         socket,
         messages,
@@ -174,14 +219,13 @@ const UserProvider = ({children}) => {
         loginAndSetCurrentUser,
         updateCurrentChat,
         sendMessage,
-        createNewChatRoom
+        createNewChatRoom,
+        createConversation
       }}
     >
       {children}
     </UserContext.Provider>
-
-  )
-
-}
+  );
+};
 
 export default UserProvider;

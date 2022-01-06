@@ -39,9 +39,10 @@ exports.login = async (req, res) => {
 
     const token = await jwt.sign({id: user.id}, process.env.SECRET);
     res.json({
-        message: "User logged in successfully",
         token,
-        name: user.name
+        name: user.name,
+        id: user._id,
+        email: user.email
     });
 }
 
@@ -57,6 +58,8 @@ exports.loginByToken = async (req, res) => {
     res.json({
         token,
         name: loginedUser.name,
+        id: loginedUser._id,
+        email: loginedUser.email
     });
 }
 

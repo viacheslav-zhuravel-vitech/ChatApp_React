@@ -231,6 +231,7 @@ main {
   height: 50px;
   color: #5f6773;
   padding: 0 15px 0 15px;
+  cursor: pointer;
 }
 
 .search_navigation .navigation_items_active {

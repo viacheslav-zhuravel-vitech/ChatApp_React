@@ -9,7 +9,8 @@ app.use(express.urlencoded({extended: true}));
 app.use(cors());
 
 app.use('/user', require('./routes/user'));
-app.use('/chatroom', require('./routes/chatroom'))
+app.use('/chatroom', require('./routes/chatroom'));
+app.use('/conversation', require('./routes/conversetion'));
 
 app.use(errorHandlers.notFound);
 app.use(errorHandlers.mongooseErrors);
