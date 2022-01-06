@@ -8,12 +8,12 @@ import {UserContext} from "./context/UserContext";
 
 const App = () => {
   const userContext = useContext(UserContext);
-  const currentUser = userContext.user
+  const user = userContext.user
   return (
       <HashRouter>
           <Switch>
-            <Route path='/login' render = {() => currentUser ? (<Redirect to='/' />) : (<Login/>)} />
-            <Route path='/' render = {() => !currentUser ? (<Redirect to='/login' />) : (<MainPage/>)} />
+            <Route path='/login' render = {() => user ? (<Redirect to='/' />) : (<Login/>)} />
+            <Route path='/' render = {() => !user ? (<Redirect to='/login' />) : (<MainPage/>)} />
             <Route path='/*' render = {() => <h1> 404 page not found </h1>} />
           </Switch>
       </HashRouter>

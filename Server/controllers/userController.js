@@ -45,6 +45,21 @@ exports.login = async (req, res) => {
     });
 }
 
+exports.loginByToken = async (req, res) => {
+    const {token} = req.body;
+    const payload = await jwt.verify(token, process.env.SECRET);
+    const loginedUser = await User.findOne({
+        _id: payload.id
+    })
+
+    if (!loginedUser) throw  new Error("User don't login")
+
+    res.json({
+        token,
+        name: loginedUser.name,
+    });
+}
+
 exports.getAllRegisteredUser = async  (req, res) => {
     const allUsers = await User.find({});
 

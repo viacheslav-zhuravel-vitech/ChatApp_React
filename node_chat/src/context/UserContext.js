@@ -6,6 +6,8 @@ export const UserContext = createContext(null);
 
 const UserProvider = ({children}) => {
 
+  const token = sessionStorage.getItem("chatToken");
+
   const [user, setUser] = useState(null);
   const [listOfChatroom, setListOfChatroom] = useState([]);
   const [currentChatId, setCurrentChatId] = useState(null);
@@ -38,27 +40,28 @@ const UserProvider = ({children}) => {
     }
   }
 
-  useEffect(() => {
-    setupSocket();
-  },[user?.token])
+  useEffect( () => {
+    if(token && !user) {
+      loginUserByToken(token)
+    }
+  },[token])
+
 
   useEffect(()=> {
     if(user?.token) {
+      setupSocket();
       getAllChatRoom();
       getAllUsers();
     }
   },[user?.token])
 
-  useEffect( () => {
-    if(currentChatId) {
-      //getMessages(currentChatId);
-    }
-  },[currentChatId])
-
   useEffect(() => {
     if(currentChatId) {
       socket.on('newMessage', (message) => {
         setMessages([...messages, message])
+      })
+      socket.on('oldMessages', ({messages}) => {
+        setMessages([...messages])
       })
     }
   },[currentChatId, messages])
@@ -68,7 +71,7 @@ const UserProvider = ({children}) => {
     axios.post("http://localhost:8000/user/register",signUpData)
       .then( ({data}) => {
         loginAndSetCurrentUser(signUpData.email, signUpData.password);
-        console.log(data.message);
+
       })
       .catch (err => {
         console.log(err.response.data.message);
@@ -79,8 +82,18 @@ const UserProvider = ({children}) => {
     axios.post("http://localhost:8000/user/login",{email, password})
       .then( ({data}) => {
         setUser(data);
-        localStorage.setItem("chatToken", data.token)
-        console.log(data.message);
+        sessionStorage.setItem("chatToken", data.token)
+      })
+      .catch (err => {
+        console.log(err.response.data.message);
+      })
+  }
+
+  const loginUserByToken = token => {
+    axios.post("http://localhost:8000/user/loginByToken",{token})
+      .then(({data}) => {
+        setUser(data);
+        sessionStorage.setItem("chatToken", data.token)
       })
       .catch (err => {
         console.log(err.response.data.message);
@@ -131,6 +144,7 @@ const UserProvider = ({children}) => {
       socket.emit('leaveRoom',{
         currentChatId
       })
+      setMessages([]);
       setCurrentChatId(id);
       socket.emit('joinRoom', {
         id

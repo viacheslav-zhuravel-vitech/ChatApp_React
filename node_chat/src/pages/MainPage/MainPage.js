@@ -13,7 +13,7 @@ import room from '../../assets/IMG/room.jpg'
 import {UserContext} from "../../context/UserContext";
 
 const MainPage = () => {
-    const token = localStorage.getItem("chatToken");
+    const token = sessionStorage.getItem("chatToken");
     const history = useHistory();
     const userContext = useContext(UserContext);
     const messagesEndRef = useRef(null);
@@ -22,11 +22,11 @@ const MainPage = () => {
     const [showNewChatroomInput, setShowNewChatroomInput] = useState(false);
     const [newChatroomName, setNewChatroomName] = useState('')
 
-    useEffect(() => {
+    /*useEffect(() => {
         if (!token) {
             history.push('./login')
         }
-    },[token])
+    },[token])*/
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView();
