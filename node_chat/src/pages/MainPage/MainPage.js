@@ -64,7 +64,7 @@ const MainPage = () => {
           </div>
           <div className="user_wrapper">
             <span>{userContext?.user?.name}</span>
-            <img alt="logined user picture" className="logined_user" src={girlUser} />
+            <img alt="logined user" className="logined_user" src={girlUser} />
           </div>
         </div>
       </header>
@@ -255,7 +255,7 @@ const MainPage = () => {
                       <img alt="user icon" src={menUser} />
                     </div>
                     <div className="content">
-                      <img alt="image preview" src={room} width="114px" height="84px" />
+                      <img alt="preview" src={room} width="114px" height="84px" />
                       <div className="description">
                         <span>Big room.jpg</span>
                         <a>Download</a>

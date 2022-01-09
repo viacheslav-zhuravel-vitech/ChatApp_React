@@ -14,6 +14,7 @@ const UserProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
   const [allUsers, setAllUser] = useState([]);
+  const [selectedList, setSelectedList] = useState('MOCKED');
 
   const setupSocket = () => {
     if (user?.token && !socket) {
@@ -44,6 +45,7 @@ const UserProvider = ({ children }) => {
     if (token && !user) {
       loginUserByToken(token);
     }
+    // eslint-disable-next-line
   }, [token]);
 
   useEffect(() => {
@@ -53,6 +55,7 @@ const UserProvider = ({ children }) => {
       getAllUsers();
       getActiveConversation();
     }
+    // eslint-disable-next-line
   }, [user?.token]);
 
   useEffect(() => {
@@ -64,6 +67,7 @@ const UserProvider = ({ children }) => {
         setMessages([...messages]);
       });
     }
+    // eslint-disable-next-line
   }, [currentChatId, messages]);
 
   const createAndSetCurrentUser = (signUpData) => {
@@ -150,22 +154,40 @@ const UserProvider = ({ children }) => {
   };
 
   const createConversation = (currentUserId, opponentUserId) => {
-    axios
-      .post(
-        'http://localhost:8000/conversation/createConversation',
-        { members: [currentUserId, opponentUserId] },
-        {
-          headers: {
-            Authorization: 'Bearer ' + user.token
+    let listOfOpponentsIds = [];
+    listOfConversations.forEach((e) => {
+      listOfOpponentsIds.push(...e.members.filter((id) => id !== user.id));
+    });
+
+    if (!listOfOpponentsIds.includes(opponentUserId)) {
+      axios
+        .post(
+          'http://localhost:8000/conversation/createConversation',
+          { members: [currentUserId, opponentUserId] },
+          {
+            headers: {
+              Authorization: 'Bearer ' + user.token
+            }
           }
+        )
+        .then(({ data }) => {
+          setListOfConversations([...listOfConversations, data]);
+          setSelectedList('ACTIVE');
+          updateCurrentChat(data._id);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      let conversationWithSelectedUser;
+      listOfConversations.forEach((conversation) => {
+        if (conversation.members.includes(opponentUserId)) {
+          conversationWithSelectedUser = conversation;
         }
-      )
-      .then(({ data }) => {
-        ///
-      })
-      .catch((err) => {
-        console.log(err);
       });
+      setSelectedList('ACTIVE');
+      updateCurrentChat(conversationWithSelectedUser._id);
+    }
   };
 
   const getActiveConversation = () => {
@@ -215,12 +237,16 @@ const UserProvider = ({ children }) => {
         socket,
         messages,
         allUsers,
+        selectedList,
         createAndSetCurrentUser,
         loginAndSetCurrentUser,
         updateCurrentChat,
         sendMessage,
         createNewChatRoom,
-        createConversation
+        createConversation,
+        getActiveConversation,
+        getAllUsers,
+        setSelectedList
       }}
     >
       {children}

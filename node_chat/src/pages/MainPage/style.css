@@ -253,6 +253,16 @@ main {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  cursor: pointer;
+}
+
+.chat_list .chat_item_wrapper .chat_item:hover {
+  box-sizing: border-box;
+  position: relative;
+  width: 347px;
+  padding: 0 30px 0 24px;
+  z-index: 2;
+  background-color:  #282e36;
 }
 
 .chat_list .chat_item_wrapper .chat_item_selected {
@@ -420,7 +430,7 @@ main {
 }
 
 .message_item:first-of-type {
-  margin: 95px 23px 20px 0;
+  margin: 95px 23px 20px 33px;
 }
 
 .message_item .text_wrapper {
