@@ -11,7 +11,10 @@ const ActiveConversation = () => {
       <div
         className={`chat_item ${conversation._id === userContext.currentChatId && 'chat_item_selected'}`}
         key={opponent?.id}
-        onClick={() => userContext.updateCurrentChat(conversation._id)}
+        onClick={() => {
+          userContext.updateCurrentChat(conversation._id);
+          userContext.setCurrentOpponent(opponent);
+        }}
       >
         <div className="user_icon">
           <img alt="user icon" src={menUser} />

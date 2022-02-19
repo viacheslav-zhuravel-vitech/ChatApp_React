@@ -15,6 +15,7 @@ const UserProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const [allUsers, setAllUser] = useState([]);
   const [selectedList, setSelectedList] = useState('MOCKED');
+  const [currentOpponent, setCurrentOpponent] = useState(null);
 
   const setupSocket = () => {
     if (user?.token && !socket) {
@@ -154,6 +155,7 @@ const UserProvider = ({ children }) => {
   };
 
   const createConversation = (currentUserId, opponentUserId) => {
+    const opponent = allUsers.filter((user) => user.id === opponentUserId)[0];
     let listOfOpponentsIds = [];
     listOfConversations.forEach((e) => {
       listOfOpponentsIds.push(...e.members.filter((id) => id !== user.id));
@@ -174,6 +176,7 @@ const UserProvider = ({ children }) => {
           setListOfConversations([...listOfConversations, data]);
           setSelectedList('ACTIVE');
           updateCurrentChat(data._id);
+          setCurrentOpponent(opponent);
         })
         .catch((err) => {
           console.log(err);
@@ -187,6 +190,7 @@ const UserProvider = ({ children }) => {
       });
       setSelectedList('ACTIVE');
       updateCurrentChat(conversationWithSelectedUser._id);
+      setCurrentOpponent(opponent);
     }
   };
 
@@ -238,6 +242,7 @@ const UserProvider = ({ children }) => {
         messages,
         allUsers,
         selectedList,
+        currentOpponent,
         createAndSetCurrentUser,
         loginAndSetCurrentUser,
         updateCurrentChat,
@@ -246,7 +251,8 @@ const UserProvider = ({ children }) => {
         createConversation,
         getActiveConversation,
         getAllUsers,
-        setSelectedList
+        setSelectedList,
+        setCurrentOpponent
       }}
     >
       {children}

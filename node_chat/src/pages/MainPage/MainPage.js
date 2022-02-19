@@ -11,14 +11,13 @@ import menUser from '../../assets/IMG/men_user.svg';
 import room from '../../assets/IMG/room.jpg';
 import { UserContext } from '../../context/UserContext';
 import UsersList from './UsersList/UsersList';
+import OpponentInformation from './OpponentInformation/OpponentInformation';
+import TeamList from './TeamList/TeamList';
 
 const MainPage = () => {
   const userContext = useContext(UserContext);
   const messagesEndRef = useRef(null);
-
   const [newMessage, setNewMessage] = useState('');
-  const [showNewChatroomInput, setShowNewChatroomInput] = useState(false);
-  const [newChatroomName, setNewChatroomName] = useState('');
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView();
@@ -27,11 +26,6 @@ const MainPage = () => {
   const handleChange = (e) => {
     const { value } = e.target;
     setNewMessage(value);
-  };
-
-  const handleChangeChatroomName = (e) => {
-    const { value } = e.target;
-    setNewChatroomName(value);
   };
 
   return (
@@ -69,112 +63,11 @@ const MainPage = () => {
         </div>
       </header>
       <main>
-        <div className="teams_list">
-          <div className="teams_wrapper">
-            <div className="title">
-              <span>Teams</span>
-              <button />
-            </div>
-            <div className="channels_item_wrapper channels_item_wrapper_active ">
-              <span>#designers</span>
-              <div className="counter">7</div>
-            </div>
-            <div className="channels_item_wrapper">
-              <span>#programmers</span>
-              <div className="counter">10</div>
-            </div>
-            <div className="channels_item_wrapper">
-              <span>#marceters</span>
-              <div className="counter">15</div>
-            </div>
-            <div className="channels_item_wrapper">
-              <span>#copyrighters</span>
-              <div className="counter">8</div>
-            </div>
-            <div className="channels_item_wrapper">
-              <span>#managers</span>
-              <div className="counter">5</div>
-            </div>
-          </div>
-          <div className="group_channels_wrapper">
-            <div className="title">
-              <span>Group channels</span>
-              <button onClick={() => setShowNewChatroomInput(!showNewChatroomInput)} />
-            </div>
-            {showNewChatroomInput && (
-              <div className="input_wrapper">
-                <input type="file" id="input_file" />
-                <textarea
-                  placeholder="Type your new chatroom name"
-                  value={newChatroomName}
-                  onChange={handleChangeChatroomName}
-                />
-                <button
-                  onClick={() => {
-                    userContext.createNewChatRoom(newChatroomName);
-                    setShowNewChatroomInput(false);
-                  }}
-                >
-                  SEND
-                </button>
-              </div>
-            )}
-            {userContext?.listOfChatroom?.map((chatroom) => {
-              return (
-                <div
-                  key={chatroom._id}
-                  className={`channels_item_wrapper ${
-                    userContext.currentChatId === chatroom._id ? 'channels_item_wrapper_active' : null
-                  }`}
-                  onClick={() => userContext.updateCurrentChat(chatroom._id)}
-                >
-                  <span>#{chatroom.name}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <TeamList />
         <div className="chat_list">
           <UsersList />
-          <div className="selected_user_wrapper">
-            <div className="selected_user_avatar_wrapper">
-              <img alt="selected user avatar" className="selected_user_avatar" src={selectedGirl} />
-              <div className="user_text">
-                <span>Rachel Curtis</span>
-                <span>New York, USA</span>
-              </div>
-            </div>
-            <div className="info_section">
-              <div className="user_text">
-                <span>Nickname</span> <br />
-                <span>Silentgirl</span>
-              </div>
-              <div className="user_text">
-                <span>Email</span> <br />
-                <span>rachelcurtis@itzpromo.com</span>
-              </div>
-              <div className="user_text">
-                <span>Phone number</span> <br />
-                <span>(805) 651-9088</span>
-              </div>
-            </div>
-            <div className="info_section">
-              <div className="user_text">
-                <span>Date of birth</span> <br />
-                <span>January 20, 1990</span>
-              </div>
-              <div className="user_text">
-                <span>Gender</span> <br />
-                <span>Female</span>
-              </div>
-              <div className="user_text">
-                <span>Languages</span> <br />
-                <span>English, French</span>
-              </div>
-              <span className="full_profile">Show full profile</span>
-            </div>
-          </div>
         </div>
+        {userContext.currentOpponent && <OpponentInformation />}
         <div className="chat">
           <div className="message_wrapper">
             {userContext.currentChatId ? (
